@@ -126,6 +126,7 @@ typedef struct rocksdb_wal_iterator_t rocksdb_wal_iterator_t;
 typedef struct rocksdb_wal_readoptions_t rocksdb_wal_readoptions_t;
 typedef struct rocksdb_memory_consumers_t rocksdb_memory_consumers_t;
 typedef struct rocksdb_memory_usage_t rocksdb_memory_usage_t;
+typedef struct rocksdb_write_buffer_manager_t rocksdb_write_buffer_manager_t;
 
 /* DB operations */
 
@@ -978,6 +979,8 @@ extern ROCKSDB_LIBRARY_API size_t
 rocksdb_options_get_write_buffer_size(rocksdb_options_t*);
 extern ROCKSDB_LIBRARY_API void rocksdb_options_set_db_write_buffer_size(
     rocksdb_options_t*, size_t);
+extern ROCKSDB_LIBRARY_API void rocksdb_options_set_write_buffer_manager(
+    rocksdb_options_t*, rocksdb_write_buffer_manager_t*);
 extern ROCKSDB_LIBRARY_API size_t
 rocksdb_options_get_db_write_buffer_size(rocksdb_options_t*);
 extern ROCKSDB_LIBRARY_API void rocksdb_options_set_max_open_files(
@@ -1266,6 +1269,8 @@ extern ROCKSDB_LIBRARY_API void rocksdb_options_set_optimize_filters_for_hits(
     rocksdb_options_t*, int);
 extern ROCKSDB_LIBRARY_API unsigned char
 rocksdb_options_get_optimize_filters_for_hits(rocksdb_options_t*);
+extern ROCKSDB_LIBRARY_API void rocksdb_options_set_ttl(
+    rocksdb_options_t*, int);
 extern ROCKSDB_LIBRARY_API void
 rocksdb_options_set_delete_obsolete_files_period_micros(rocksdb_options_t*,
                                                         uint64_t);
@@ -1882,6 +1887,13 @@ rocksdb_fifo_compaction_options_get_max_table_files_size(
 extern ROCKSDB_LIBRARY_API void rocksdb_fifo_compaction_options_destroy(
     rocksdb_fifo_compaction_options_t* fifo_opts);
 
+/* Write Buffer Manager */
+extern ROCKSDB_LIBRARY_API rocksdb_write_buffer_manager_t* rocksdb_write_buffer_manager_create(size_t buffer_size, rocksdb_cache_t* cache);
+extern ROCKSDB_LIBRARY_API void rocksdb_write_buffer_manager_destroy(rocksdb_write_buffer_manager_t* manager);
+extern ROCKSDB_LIBRARY_API unsigned char rocksdb_write_buffer_manager_enabled(rocksdb_write_buffer_manager_t* manager);
+extern ROCKSDB_LIBRARY_API size_t rocksdb_write_buffer_manager_memory_usage(rocksdb_write_buffer_manager_t* manager);
+extern ROCKSDB_LIBRARY_API size_t rocksdb_write_buffer_manager_buffer_size(rocksdb_write_buffer_manager_t* manager);
+
 extern ROCKSDB_LIBRARY_API int rocksdb_livefiles_count(
     const rocksdb_livefiles_t*);
 extern ROCKSDB_LIBRARY_API const char* rocksdb_livefiles_name(
@@ -2101,6 +2113,13 @@ rocksdb_optimistictransaction_begin(
 
 extern ROCKSDB_LIBRARY_API void rocksdb_optimistictransactiondb_close(
     rocksdb_optimistictransactiondb_t* otxn_db);
+
+/* Write Buffer Manager */
+extern ROCKSDB_LIBRARY_API rocksdb_write_buffer_manager_t* rocksdb_write_buffer_manager_create(size_t buffer_size, rocksdb_cache_t* cache);
+extern ROCKSDB_LIBRARY_API void rocksdb_write_buffer_manager_destroy(rocksdb_write_buffer_manager_t* manager);
+extern ROCKSDB_LIBRARY_API unsigned char rocksdb_write_buffer_manager_enabled(rocksdb_write_buffer_manager_t* manager);
+extern ROCKSDB_LIBRARY_API size_t rocksdb_write_buffer_manager_memory_usage(rocksdb_write_buffer_manager_t* manager);
+extern ROCKSDB_LIBRARY_API size_t rocksdb_write_buffer_manager_buffer_size(rocksdb_write_buffer_manager_t* manager);
 
 /* Transaction Options */
 
