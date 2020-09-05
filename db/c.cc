@@ -41,6 +41,7 @@
 #include "rocksdb/write_batch.h"
 #include "rocksdb/perf_context.h"
 #include "utilities/merge_operators.h"
+#include "rocksdb/write_buffer_manager.h"
 
 #include <vector>
 #include <unordered_set>
@@ -114,6 +115,7 @@ using ROCKSDB_NAMESPACE::WritableFile;
 using ROCKSDB_NAMESPACE::WriteBatch;
 using ROCKSDB_NAMESPACE::WriteBatchWithIndex;
 using ROCKSDB_NAMESPACE::WriteOptions;
+using ROCKSDB_NAMESPACE::WriteBufferManager;
 
 using std::shared_ptr;
 using std::vector;
@@ -156,6 +158,9 @@ struct rocksdb_logger_t {
 };
 struct rocksdb_cache_t {
   std::shared_ptr<Cache> rep;
+};
+struct rocksdb_write_buffer_manager_t {
+  std::shared_ptr<WriteBufferManager> rep;
 };
 struct rocksdb_livefiles_t       { std::vector<LiveFileMetaData> rep; };
 struct rocksdb_column_family_handle_t  { ColumnFamilyHandle* rep; };
@@ -2299,6 +2304,11 @@ void rocksdb_options_set_info_log(rocksdb_options_t* opt, rocksdb_logger_t* l) {
   }
 }
 
+void rocksdb_options_set_write_buffer_manager(
+    rocksdb_options_t* opt, rocksdb_write_buffer_manager_t* manager) {
+  opt->rep.write_buffer_manager = manager->rep;
+}
+
 void rocksdb_options_set_info_log_level(
     rocksdb_options_t* opt, int v) {
   opt->rep.info_log_level = static_cast<InfoLogLevel>(v);
@@ -2808,6 +2818,10 @@ void rocksdb_options_set_disable_auto_compactions(rocksdb_options_t* opt, int di
 
 void rocksdb_options_set_optimize_filters_for_hits(rocksdb_options_t* opt, int v) {
   opt->rep.optimize_filters_for_hits = v;
+}
+
+void rocksdb_options_set_ttl(rocksdb_options_t* opt, int v) {
+  opt->rep.ttl = v;
 }
 
 void rocksdb_options_set_delete_obsolete_files_period_micros(
@@ -3508,6 +3522,29 @@ size_t rocksdb_cache_get_usage(rocksdb_cache_t* cache) {
 
 size_t rocksdb_cache_get_pinned_usage(rocksdb_cache_t* cache) {
   return cache->rep->GetPinnedUsage();
+}
+
+
+	rocksdb_write_buffer_manager_t* rocksdb_write_buffer_manager_create(size_t buffer_size, rocksdb_cache_t* cache) {
+  rocksdb_write_buffer_manager_t* manager = new rocksdb_write_buffer_manager_t;
+  manager->rep.reset(new WriteBufferManager(buffer_size, cache->rep));
+  return manager;
+}
+
+void rocksdb_write_buffer_manager_destroy(rocksdb_write_buffer_manager_t* manager) {
+  delete manager;
+}
+
+unsigned char rocksdb_write_buffer_manager_enabled(rocksdb_write_buffer_manager_t* manager) {
+  return manager->rep->enabled();
+}
+
+size_t rocksdb_write_buffer_manager_memory_usage(rocksdb_write_buffer_manager_t* manager) {
+  return manager->rep->memory_usage();
+}
+
+size_t rocksdb_write_buffer_manager_buffer_size(rocksdb_write_buffer_manager_t* manager) {
+  return manager->rep->buffer_size();
 }
 
 rocksdb_dbpath_t* rocksdb_dbpath_create(const char* path, uint64_t target_size) {
