@@ -49,6 +49,8 @@ struct CompactionOptions;
 struct CompactRangeOptions;
 struct TableProperties;
 struct ExternalSstFileInfo;
+struct Cache;
+struct WriteBufferManager;
 class WriteBatch;
 class Env;
 class EventListener;
