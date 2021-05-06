@@ -4111,7 +4111,11 @@ size_t rocksdb_cache_get_pinned_usage(rocksdb_cache_t* cache) {
 
 	rocksdb_write_buffer_manager_t* rocksdb_write_buffer_manager_create(size_t buffer_size, rocksdb_cache_t* cache) {
   rocksdb_write_buffer_manager_t* manager = new rocksdb_write_buffer_manager_t;
-  manager->rep.reset(new WriteBufferManager(buffer_size, cache->rep));
+  if (cache == nullptr) {
+    manager->rep.reset(new WriteBufferManager(buffer_size));
+  } else {
+    manager->rep.reset(new WriteBufferManager(buffer_size, cache->rep));
+  }
   return manager;
 }
 
